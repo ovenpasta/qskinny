@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET   = $$qskLibraryTarget(qskqmlexport)
 
-QT += quick-private
+QT += quick-private gui-private
 CONFIG += qskinny
 
 contains(QSK_CONFIG, QskDll): DEFINES += QSK_QML_MAKEDLL

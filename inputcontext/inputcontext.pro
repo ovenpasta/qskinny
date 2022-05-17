@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = $$qskPluginTarget(qskinputcontext)
 
-QT += gui-private
+QT += gui-private core-private
 
 # CONFIG += pinyin
 # CONFIG += hunspell
