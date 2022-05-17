@@ -72,7 +72,7 @@ void QskGraphicNode::setGraphic(
         m_hash = hash;
         isTextureDirty = true;
     }
-
+#ifdef USE_TEXTUREID
     auto textureId = QskTextureNode::textureId();
 
     if ( isTextureDirty )
@@ -82,4 +82,9 @@ void QskGraphicNode::setGraphic(
     }
 
     QskTextureNode::setTexture( window, rect, textureId, mirrored );
+#else
+	auto texture = QskTextureRenderer::createTextureFromGraphic( window,
+            renderMode, textureSize, graphic, colorFilter, Qt::IgnoreAspectRatio );
+    QskTextureNode::setTexture( window, rect, texture, mirrored );
+#endif
 }

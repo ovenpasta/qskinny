@@ -59,11 +59,14 @@ QSGTexture* QskGraphicTextureFactory::createTexture( QQuickWindow* window ) cons
 {
     using namespace QskTextureRenderer;
 
-    const uint textureId = createTextureFromGraphic(
+#ifdef USE_TEXTUREID
+	const uint textureId = createTextureFromGraphic(
         QskTextureRenderer::OpenGL, m_size, m_graphic, m_colorFilter,
         Qt::IgnoreAspectRatio );
-
     return textureFromId( window, textureId, m_size );
+#else
+	return window->createTextureFromImage(image()); // TODO: we are not using m_colorFilter!
+#endif
 }
 
 QSize QskGraphicTextureFactory::textureSize() const

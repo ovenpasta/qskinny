@@ -112,6 +112,7 @@ bool Benchmark::run( const QString& dirName )
         msElapsed[ 3 ] = timer.elapsed();
     }
 
+	#ifdef USE_TEXTUREID
     {
         // creating textures using OpenGL
 
@@ -163,6 +164,7 @@ bool Benchmark::run( const QString& dirName )
 
         msElapsed[ 5 ] = timer.elapsed();
     }
+	#endif
 
     qDebug() << "#Icons:" << svgFiles.count() <<
         "Compiled:" << msElapsed[ 0 ] <<

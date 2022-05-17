@@ -49,7 +49,7 @@ void QskPaintedNode::update( QQuickWindow* window,
         m_hash = newHash;
         isTextureDirty = true;
     }
-
+#ifdef USE_TEXTUREID
     auto textureId = QskTextureNode::textureId();
 
     if ( isTextureDirty )
@@ -60,4 +60,14 @@ void QskPaintedNode::update( QQuickWindow* window,
     }
 
     QskTextureNode::setTexture( window, rect, textureId );
+#else
+	auto texture = QskTextureNode::texture();
+    if ( isTextureDirty )
+    {
+        PaintHelper helper( this );
+        texture = QskTextureRenderer::createTexture( window,
+            renderMode, rect.size(), &helper );
+    }
+    QskTextureNode::setTexture( window, rect, texture );
+#endif
 }

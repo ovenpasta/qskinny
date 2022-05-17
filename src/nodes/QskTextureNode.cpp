@@ -10,6 +10,7 @@ QSK_QT_PRIVATE_BEGIN
 #include <private/qsgnode_p.h>
 QSK_QT_PRIVATE_END
 
+#ifdef USE_TEXTUREID
 #if QT_VERSION >= QT_VERSION_CHECK( 6, 0, 0 )
 
 #include <qsgtexture.h>
@@ -227,6 +228,7 @@ static inline void qskDeleteTexture( const TextureMaterial& material )
 
 #endif
 
+
 class QskTextureNodePrivate final : public QSGGeometryNodePrivate
 {
   public:
@@ -269,6 +271,53 @@ class QskTextureNodePrivate final : public QSGGeometryNodePrivate
     QRectF rect;
     Qt::Orientations mirrored;
 };
+#else //USE_TEXTUREID
+
+class QskTextureNodePrivate final : public QSGGeometryNodePrivate
+{
+  public:
+    QskTextureNodePrivate()
+        : geometry( QSGGeometry::defaultAttributes_TexturedPoint2D(), 4 ), m_texture(nullptr)
+    {
+    }
+
+	QSGTexture* texture() const { return m_texture; };
+    void setTexture( QQuickWindow*, QSGTexture* texture);
+
+    void updateTextureGeometry( const QQuickWindow* window )
+    {
+        QRectF r( 0, 0, 1, 1 );
+
+        if ( this->mirrored & Qt::Horizontal )
+        {
+            r.setLeft( 1 );
+            r.setRight( 0 );
+        }
+
+        if ( mirrored & Qt::Vertical )
+        {
+            r.setTop( 1 );
+            r.setBottom( 0 );
+        }
+
+        const qreal ratio = window->effectiveDevicePixelRatio();
+
+        const QRectF scaledRect( rect.x(), rect.y(),
+            rect.width() / ratio, rect.height() / ratio );
+
+        QSGGeometry::updateTexturedRectGeometry( &geometry, scaledRect, r );
+    }
+
+    QSGGeometry geometry;
+/*
+    OpaqueTextureMaterial opaqueMaterial;
+    TextureMaterial material;*/
+	QSGTexture* m_texture;
+    QRectF rect;
+    Qt::Orientations mirrored;
+};
+
+#endif
 
 QskTextureNode::QskTextureNode()
     : QSGGeometryNode( *new QskTextureNodePrivate )
@@ -276,17 +325,21 @@ QskTextureNode::QskTextureNode()
     Q_D( QskTextureNode );
 
     setGeometry( &d->geometry );
-
+#ifdef USE_TEXTUREID
     setMaterial( &d->material );
     setOpaqueMaterial( &d->opaqueMaterial );
+#endif
 }
 
 QskTextureNode::~QskTextureNode()
 {
     Q_D( const QskTextureNode );
+#ifdef USE_TEXTUREID
     qskDeleteTexture( d->material );
+#endif
 }
 
+#ifdef USE_TEXTUREID
 void QskTextureNode::setTexture( QQuickWindow* window,
     const QRectF& rect, uint textureId,
     Qt::Orientations mirrored )
@@ -380,9 +433,55 @@ uint QskTextureNode::textureId() const
 
 #endif
 
+#else //USE_TEXTUREID
+
+void QskTextureNode::setTexture( QQuickWindow* window,
+    const QRectF& rect, QSGTexture* texture,
+    Qt::Orientations mirrored )
+{
+    Q_D( QskTextureNode );
+
+    if ( ( d->rect != rect ) || ( d->mirrored != mirrored ) )
+    {
+        d->rect = rect;
+        d->mirrored = mirrored;
+
+        d->updateTextureGeometry( window );
+        markDirty( DirtyGeometry );
+    }
+
+    if ( texture != this->texture() )
+    {
+        d->setTexture( window, texture );
+        markDirty( DirtyMaterial );
+    }
+}
+#include <QSGTexture>
+void QskTextureNodePrivate::setTexture( QQuickWindow*, QSGTexture* texture )
+{
+    /* TODO qskDeleteTexture( this->material );
+
+    this->material.setTextureId( textureId );
+    this->opaqueMaterial.setTextureId( textureId );*/
+	delete this->m_texture;
+	this->m_texture=texture;
+}
+
+QSGTexture* QskTextureNode::texture() const
+{
+    Q_D( const QskTextureNode );
+    return d->texture();
+}
+
+#endif
+
 bool QskTextureNode::isNull() const
 {
+  #ifdef USE_TEXTUREID
     return textureId() == 0;
+  #else
+    return texture() == nullptr;
+  #endif
 }
 
 QRectF QskTextureNode::rect() const

@@ -41,7 +41,7 @@ namespace QskTextureRenderer
         virtual ~PaintHelper();
         virtual void paint( QPainter*, const QSize& ) = 0;
     };
-
+#ifdef USE_TEXTUREID
     QSK_EXPORT uint createTexture( RenderMode, const QSize&, PaintHelper* );
 
     QSK_EXPORT uint createTextureFromGraphic(
@@ -50,6 +50,16 @@ namespace QskTextureRenderer
 
     QSK_EXPORT QSGTexture* textureFromId(
         QQuickWindow*, uint textureId, const QSize& );
+#else
+
+    QSK_EXPORT QSGTexture* createTexture(QQuickWindow* window, RenderMode, const QSize&, PaintHelper* );
+
+    QSK_EXPORT QSGTexture* createTextureFromGraphic(QQuickWindow* window,
+        RenderMode, const QSize&, const QskGraphic&,
+        const QskColorFilter&, Qt::AspectRatioMode );
+
+#endif
+
 }
 
 #endif

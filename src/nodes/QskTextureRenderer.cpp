@@ -25,6 +25,7 @@
     #include <qsgtexture_platform.h>
 #endif
 
+#ifdef USE_TEXTUREID
 static uint qskCreateTextureOpenGL(
     const QSize& size, QskTextureRenderer::PaintHelper* helper )
 {
@@ -159,11 +160,13 @@ QSGTexture* QskTextureRenderer::textureFromId(
 
     return texture;
 }
+#endif //USE_TEXTUREID
 
 QskTextureRenderer::PaintHelper::~PaintHelper()
 {
 }
 
+#ifdef USE_TEXTUREID
 uint QskTextureRenderer::createTexture(
     RenderMode renderMode, const QSize& size, PaintHelper* helper )
 {
@@ -183,7 +186,9 @@ uint QskTextureRenderer::createTexture(
         return qskCreateTextureRaster( size, helper );
     else
         return qskCreateTextureOpenGL( size, helper );
+
 }
+
 
 uint QskTextureRenderer::createTextureFromGraphic(
     RenderMode renderMode, const QSize& size,
@@ -216,3 +221,61 @@ uint QskTextureRenderer::createTextureFromGraphic(
     PaintHelper helper( graphic, colorFilter, aspectRatioMode );
     return createTexture( renderMode, size, &helper );
 }
+#else
+
+QSGTexture* QskTextureRenderer::createTexture(QQuickWindow* window,
+    RenderMode renderMode, const QSize& size, PaintHelper* helper )
+{
+    QImage image( size, QImage::Format_RGBA8888_Premultiplied );
+    image.fill( Qt::transparent );
+
+    {
+        QPainter painter( &image );
+        helper->paint( &painter, size );
+    }
+	return window->createTextureFromImage(image);
+}
+
+
+QSGTexture* QskTextureRenderer::createTextureFromGraphic(QQuickWindow* window,
+    RenderMode renderMode, const QSize& size,
+    const QskGraphic& graphic, const QskColorFilter& colorFilter,
+    Qt::AspectRatioMode aspectRatioMode )
+{
+
+    class PaintHelper : public QskTextureRenderer::PaintHelper
+    {
+      public:
+        PaintHelper( const QskGraphic& graphic,
+                const QskColorFilter& filter, Qt::AspectRatioMode aspectRatioMode )
+            : m_graphic( graphic )
+            , m_filter( filter )
+            , m_aspectRatioMode( aspectRatioMode )
+        {
+        }
+
+        void paint( QPainter* painter, const QSize& size ) override
+        {
+            const QRect rect( 0, 0, size.width(), size.height() );
+            m_graphic.render( painter, rect, m_filter, m_aspectRatioMode );
+        }
+
+      private:
+        const QskGraphic& m_graphic;
+        const QskColorFilter& m_filter;
+        const Qt::AspectRatioMode m_aspectRatioMode;
+    };
+
+    PaintHelper helper( graphic, colorFilter, aspectRatioMode );
+
+	QImage image( size, QImage::Format_RGBA8888_Premultiplied );
+    image.fill( Qt::transparent );
+
+    {
+        QPainter painter( &image );
+        helper.paint( &painter, size );
+    }
+
+    return window->createTextureFromImage(image);
+}
+#endif
