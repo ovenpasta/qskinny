@@ -12,6 +12,7 @@
 
 // Flat is no state - we need to get rid of it. TODO ...
 QSK_SYSTEM_STATE( QskAbstractButton, Flat, QskAspect::FirstSystemState << 1 )
+QSK_SYSTEM_STATE( QskAbstractButton, Primary, QskAspect::FirstSystemState << 2 )
 
 QSK_SYSTEM_STATE( QskAbstractButton, Checked, QskAspect::LastSystemState >> 3 )
 QSK_SYSTEM_STATE( QskAbstractButton, Pressed, QskAspect::LastSystemState >> 2 )

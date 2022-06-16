@@ -73,6 +73,9 @@ class QSK_EXPORT QskPushButton : public QskAbstractButton
     void setFlat( bool );
     bool isFlat() const;
 
+	void setPrimary (bool);
+	bool isPrimary() const;
+
     QFont font() const;
 
     QRectF layoutRectForSize( const QSizeF& ) const override;
@@ -90,6 +93,7 @@ class QSK_EXPORT QskPushButton : public QskAbstractButton
     void textChanged();
     void textOptionsChanged();
     void flatChanged();
+    void primaryChanged();
     void graphicChanged();
     void graphicSourceChanged();
     void graphicSourceSizeChanged();

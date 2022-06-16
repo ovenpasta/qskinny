@@ -114,6 +114,20 @@ bool QskPushButton::isFlat() const
     return hasSkinState( Flat );
 }
 
+void QskPushButton::setPrimary( bool on )
+{
+  if ( on != isPrimary() )
+    {
+      setSkinStateFlag( Primary, on );
+      Q_EMIT primaryChanged();
+    }
+}
+
+bool QskPushButton::isPrimary() const
+{
+  return skinStates() & Primary;
+}
+
 void QskPushButton::setText( const QString& text )
 {
     if ( text != m_data->text )
