@@ -14,13 +14,13 @@ class QSK_EXPORT QskTextInput : public QskControl
 {
     Q_OBJECT
 
-    Q_PROPERTY( QString text READ text WRITE setText NOTIFY textChanged )
+    Q_PROPERTY( QString text READ text WRITE setText NOTIFY textChanged USER true)
 
     Q_PROPERTY( QString description READ description
         WRITE setDescription NOTIFY descriptionChanged )
 
     Q_PROPERTY( int fontRole READ fontRole
-        WRITE setFontRole RESET resetFontRole NOTIFY fontRoleChanged )
+        WRITE setFontRole NOTIFY fontRoleChanged )
 
     Q_PROPERTY( QFont font READ font )
 

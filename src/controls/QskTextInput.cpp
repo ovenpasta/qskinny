@@ -197,9 +197,13 @@ namespace
     {
         classBegin();
 
-        setActiveFocusOnTab( false );
-        setFlag( ItemAcceptsInputMethod, false );
-        setFocusOnPress( false );
+        setActiveFocusOnTab( true );
+        setFlag( ItemAcceptsInputMethod, true );
+        setFocusOnPress( true );
+
+		setSelectByMouse(true);
+		setPersistentSelection(true);
+		setWrapMode(Wrap);
 
         componentComplete();
 
@@ -379,6 +383,7 @@ void QskTextInput::keyPressEvent( QKeyEvent* event )
                         qskForceActiveFocus( this, Qt::PopupFocusReason );
                     }
                 }
+				Inherited::keyPressEvent( event );
                 break;
             }
 #if 1
@@ -483,7 +488,7 @@ void QskTextInput::focusOutEvent( QFocusEvent* event )
     Inherited::focusOutEvent( event );
 }
 
-QSizeF QskTextInput::layoutSizeHint( Qt::SizeHint which, const QSizeF& ) const
+QSizeF QskTextInput::layoutSizeHint( Qt::SizeHint which, const QSizeF& constraint) const
 {
     if ( which != Qt::PreferredSize )
         return QSizeF();
@@ -492,7 +497,7 @@ QSizeF QskTextInput::layoutSizeHint( Qt::SizeHint which, const QSizeF& ) const
 
     input->updateMetrics();
 
-    QSizeF hint( input->implicitWidth(), input->implicitHeight() );
+    QSizeF hint( constraint.width(), input->implicitHeight() );
 
     if ( m_data->hasPanel )
     {
